@@ -10,6 +10,7 @@ export class DalService {
       minPoolSize: +process.env.MONGO_MIN_POOL_SIZE || 10,
       autoIndex: process.env.AUTO_CREATE_INDEXES === 'true',
       maxIdleTimeMS: 1000 * 60 * 10,
+      ssl: true, // TODO: to enable ssl
     };
 
     const instance = await mongoose.connect(url, {

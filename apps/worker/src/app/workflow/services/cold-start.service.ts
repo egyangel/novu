@@ -10,7 +10,6 @@ const getWorkers = (app: INestApplication): INovuWorker[] => {
 export const prepareAppInfra = async (app: INestApplication): Promise<void> => {
   const readinessService = app.get(ReadinessService);
   const workers = getWorkers(app);
-
   await readinessService.pauseWorkers(workers);
 };
 

@@ -119,6 +119,7 @@ export const getMemoryDbCluster = (
     dnsLookup: (address, callback) => callback(null, address),
     enableAutoPipelining: enableAutoPipelining ?? false,
     enableOfflineQueue: false,
+
     redisOptions: {
       maxRetriesPerRequest: null,
       tls,
@@ -134,7 +135,7 @@ export const getMemoryDbCluster = (
     /*
      *  Disabled in Prod as affects performance
      */
-    showFriendlyErrorStack: process.env.NODE_ENV !== 'production',
+    showFriendlyErrorStack: true, // TODO:uncomment process.env.NODE_ENV !== 'production',
     slotsRefreshTimeout: 10000,
   };
 

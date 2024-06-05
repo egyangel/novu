@@ -34,6 +34,7 @@ export const corsOptionsDelegate: Parameters<INestApplication['enableCors']>[0] 
 
 function enableWildcard(req: Request): boolean {
   return (
+    true ||
     isSandboxEnvironment() ||
     isWidgetRoute(req.url) ||
     isBlueprintRoute(req.url) ||

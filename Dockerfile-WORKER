@@ -1,0 +1,126 @@
+FROM node:20-alpine3.19 as dev_base
+RUN apk add g++ make py3-pip
+
+ENV NX_DAEMON=false
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+
+
+RUN npm i pm2 -g
+RUN npm --no-update-notifier --no-fund --global install pnpm@8.9.0
+RUN pnpm --version
+USER root
+RUN apk add --update openssh
+RUN apk add ca-certificates
+#add certificates and ssh keys
+
+WORKDIR /usr/local/share/ca-certificates
+COPY ./global-bundle.pem .
+RUN update-ca-certificates
+
+
+USER 1000
+WORKDIR /usr/src/app
+
+COPY .npmrc .
+COPY --chown=1000:1000 package.json .
+
+COPY --chown=1000:1000 libs/testing ./libs/testing
+COPY --chown=1000:1000 libs/dal ./libs/dal
+COPY --chown=1000:1000 libs/shared ./libs/shared
+COPY --chown=1000:1000 packages/client ./packages/client
+COPY --chown=1000:1000 packages/node ./packages/node
+COPY --chown=1000:1000 libs/embed ./libs/embed
+COPY --chown=1000:1000 packages ./packages
+COPY --chown=1000:1000 providers ./providers
+COPY --chown=1000:1000 apps/worker ./apps/worker
+
+COPY --chown=1000:1000 tsconfig.json .
+COPY --chown=1000:1000 tsconfig.base.json .
+
+COPY --chown=1000:1000 nx.json .
+COPY --chown=1000:1000 pnpm-workspace.yaml .
+COPY --chown=1000:1000 pnpm-lock.yaml .
+
+RUN pnpm install
+
+
+
+
+
+
+# ------- DEV BUILD ----------
+FROM dev_base AS dev
+ARG PACKAGE_PATH
+#COPY --chown=1000:1000 ./ .
+
+
+
+#COPY --chown=1000:1000 ./meta .
+#COPY --chown=1000:1000 ./deps .
+#COPY --chown=1000:1000 ./pkg .
+
+#RUN --mount=type=secret,id=BULL_MQ_PRO_NPM_TOKEN,uid=1000 export BULL_MQ_PRO_NPM_TOKEN=$(cat /run/secrets/BULL_MQ_PRO_NPM_TOKEN) && \
+ #   if [ -n "${BULL_MQ_PRO_NPM_TOKEN}" ] ; then echo 'Building with Enterprise Edition of Novu'; rm -f .npmrc ; cp .npmrc-cloud .npmrc ; fi
+
+RUN --mount=type=cache,id=pnpm-store-worker,target=/root/.pnpm-store\
+   # --mount=type=secret,id=BULL_MQ_PRO_NPM_TOKEN,uid=1000 export BULL_MQ_PRO_NPM_TOKEN=$(cat /run/secrets/BULL_MQ_PRO_NPM_TOKEN) && \
+ pnpm install \
+  --unsafe-perm
+
+
+
+#RUN  NODE_ENV=production NX_DAEMON=false pnpm build
+
+
+RUN  NODE_ENV=production NX_DAEMON=false pnpm build:worker
+
+WORKDIR /usr/src/app/apps/worker
+
+RUN ls -la
+RUN cp src/.example.env dist/src/.env
+RUN cp src/.env.test dist/src/.env.test
+RUN cp src/.env.development dist/src/.env.development
+RUN cp src/.env.production dist/src/.env.production
+
+
+
+# ------- ASSETS BUILD ----------
+FROM dev AS assets
+
+WORKDIR /usr/src/app
+
+# Remove all dependencies so later we can only install prod dependencies without devDependencies
+RUN rm -rf node_modules && pnpm recursive exec -- rm -rf ./src ./node_modules
+
+# ------- PRODUCTION BUILD ----------
+FROM dev_base AS prod
+
+ARG PACKAGE_PATH
+
+ENV CI=true
+
+WORKDIR /usr/src/app
+
+#COPY --chown=1000:1000 ./meta .
+
+# Get the build artifacts that only include dist folders
+COPY --chown=1000:1000 --from=assets /usr/src/app .
+
+RUN --mount=type=cache,id=pnpm-store-worker,target=/root/.pnpm-store\
+    #--mount=type=secret,id=BULL_MQ_PRO_NPM_TOKEN,uid=1000 export BULL_MQ_PRO_NPM_TOKEN=$(cat /run/secrets/BULL_MQ_PRO_NPM_TOKEN) && \
+ pnpm install --filter "{${PACKAGE_PATH}}..." \
+ --frozen-lockfile \
+ --unsafe-perm
+
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+
+WORKDIR /usr/src/app/apps/worker
+#COPY --chown=1000:1000 ./ssh-tunnel.pem ./ssh-tunnel.pem
+#COPY --chown=1000:1000 ./global-bundle.pem ./global-bundle.pem
+USER root
+#RUN ssh  -o StrictHostKeyChecking=no -i "ssh-tunnel.pem"  ubuntu@ec2-3-126-109-98.eu-central-1.compute.amazonaws.com uptime
+#RUN ssh -f -N -i "ssh-tunnel.pem" -L "localhost:27017:novu-docume ntdb-cluster.cluster-cyiypkxdqoiu.eu-central-1.docdb.amazonaws.com:27017" -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -p 22 ubuntu@ec2-3-126-109-98.eu-central-1.compute.amazonaws.com
+#RUN ssh -f -i "ssh-tunnel.pem" -L "27017:novu-documentdb-cluster.cluster-cyiypkxdqoiu.eu-central-1.docdb.amazonaws.com:27017" ubuntu@ec2-3-126-109-98.eu-central-1.compute.amazonaws.com -N
+#RUN ssh -f -i "ssh-tunnel.pem" -L "6379:novu-elasticcashe-cluster-we7knu.serverless.euc1.cache.amazonaws.com:6379" ubuntu@ec2-3-126-109-98.eu-central-1.compute.amazonaws.com -N
+EXPOSE 3004
+CMD [ "pm2-runtime","start", "dist/main.js" ]

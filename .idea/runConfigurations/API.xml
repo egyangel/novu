@@ -6,7 +6,46 @@
       <script value="start:dev" />
     </scripts>
     <node-interpreter value="project" />
-    <envs />
+    <envs>
+      <env name="#NEW_RELIC_APP_NAME" value="" />
+      <env name="#NEW_RELIC_ENABLED" value="false" />
+      <env name="#NEW_RELIC_LICENSE_KEY" value="" />
+      <env name="API_CONTEXT_PATH" value="api" />
+      <env name="API_PORT" value="3000" />
+      <env name="API_ROOT_URL" value="http://novu-c-Publi-RUMw2cUs2yPb-552799665.eu-central-1.elb.amazonaws.com/api" />
+      <env name="AWS_ACCESS_KEY_ID" value="test" />
+      <env name="AWS_SECRET_ACCESS_KEY" value="test" />
+      <env name="DISABLE_USER_REGISTRATION" value="false" />
+      <env name="FRONT_BASE_CONTEXT_PATH" value="web" />
+      <env name="FRONT_BASE_URL" value="http://web:4200" />
+      <env name="GLOBAL_CONTEXT_PATH" value="" />
+      <env name="HOST_NAME" value="http://localhost" />
+      <env name="JWT_SECRET" value="BestComunicationService" />
+      <env name="MONGO_INITDB_ROOT_PASSWORD" value="secret" />
+      <env name="MONGO_INITDB_ROOT_USERNAME" value="root" />
+      <env name="MONGO_MAX_POOL_SIZE" value="500" />
+      <env name="MONGO_MIN_POOL_SIZE" value="100" />
+      <env name="MONGO_URL" value="mongodb://127.0.0.1:27017/novu-dev-db" />
+      <env name="NODE_ENV" value="local" />
+      <env name="REACT_APP_API_URL" value="http://novu-c-Publi-RUMw2cUs2yPb-552799665.eu-central-1.elb.amazonaws.com/api" />
+      <env name="REACT_APP_WS_URL" value="http://ws.local:3002" />
+      <env name="REDIS_CACHE_SERVICE_HOST" value="" />
+      <env name="REDIS_CACHE_SERVICE_PORT" value="6379" />
+      <env name="REDIS_HOST" value="localhost" />
+      <env name="REDIS_PASSWORD" value="" />
+      <env name="REDIS_PORT" value="6379" />
+      <env name="S3_BUCKET_NAME" value="novu-local" />
+      <env name="S3_LOCAL_STACK" value="http://s3:4566" />
+      <env name="S3_REGION" value="eu-central-1" />
+      <env name="SENTRY_DSN" value="" />
+      <env name="STORE_ENCRYPTION_KEY" value="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" />
+      <env name="WEB_CONTEXT_PATH" value="web" />
+      <env name="WIDGET_CONTEXT_PATH" value="" />
+      <env name="WIDGET_EMBED_PATH" value="http://api.local:4701/embed.umd.min.js" />
+      <env name="WIDGET_URL" value="http://api.local:4500" />
+      <env name="WS_CONTEXT_PATH" value="" />
+      <env name="WS_PORT" value="3002" />
+    </envs>
     <method v="2" />
   </configuration>
 </component>
