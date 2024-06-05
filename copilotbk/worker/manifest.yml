@@ -1,0 +1,52 @@
+# The manifest for the "worker" service.
+# Read the full specification for the "Backend Service" type at:
+#  https://aws.github.io/copilot-cli/docs/manifest/backend-service/
+
+# Your service name will be used in naming your resources like log groups, ECS services, etc.
+name: worker
+type: Backend Service
+
+# Your service does not allow any traffic.
+
+# Configuration for your containers and service.
+image:
+  # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/backend-service/#image-build
+  build: Dockerfile-WORKER
+  port: 3004
+cpu: 1024       # Number of CPU units for the task.
+memory: 2048    # Amount of memory in MiB used by the task.
+platform: linux/x86_64     # See https://aws.github.io/copilot-cli/docs/manifest/backend-service/#platform
+count: 1
+
+exec: true     # Enable running commands in your container.
+
+
+network:
+  vpc:
+    security_groups:
+      - sg-0f296821e699189c0
+      - sg-061f14d2b5a7f311f
+      - sg-046bae17022166778
+      - sg-0f296821e699189c0
+  connect: # Enable Service Connect for intra-environment traffic between services.
+    alias: worker.local
+  # storage:
+  # readonly_fs: true       # Limit to read-only access to mounted root filesystems.
+
+# Optional fields for more advanced use-cases.
+#
+#variables:                    # Pass environment variables as key value pairs.
+#  LOG_LEVEL: info
+
+#secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
+#  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
+
+# You can override any of the values defined above by environment.
+environments:
+  staging:
+    env_file: .env
+#environments:
+#  test:
+#    count: 2               # Number of tasks to run for the "test" environment.
+#    deployment:            # The deployment strategy for the "test" environment.
+#       rolling: 'recreate' # Stops existing tasks before new ones are started for faster deployments.
