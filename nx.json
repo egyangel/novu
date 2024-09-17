@@ -15,7 +15,6 @@
     "build": [
       {
         "target": "build",
-        "inputs": ["!{projectRoot}/enterprise/**/*"],
         "projects": "dependencies"
       }
     ],

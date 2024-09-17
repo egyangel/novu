@@ -14,6 +14,7 @@ export class FcmPushProvider implements IPushProvider {
 
   private appName: string;
   private messaging: Messaging;
+
   constructor(
     private config: {
       projectId: string;

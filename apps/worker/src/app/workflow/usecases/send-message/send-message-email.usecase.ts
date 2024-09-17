@@ -449,6 +449,8 @@ export class SendMessageEmail extends SendMessageBase {
         }
       );
     } catch (error) {
+      console.log('error sending mail:');
+      console.log(JSON.stringify(error));
       await this.sendErrorStatus(
         message,
         'error',

@@ -48,7 +48,15 @@ export class BrevoEmailProvider implements IEmailProvider {
       content: attachment?.file.toString('base64'),
     }));
     email.headers = options.headers;
+    console.log('email headers before:');
+    console.log(JSON.stringify(email.headers));
+    if (email.headers) {
+      // important to not send headers:{} which will lead to an error
+      email.headers = { ...email.headers, a: 'a' };
+    }
 
+    console.log('email headers after:');
+    console.log(JSON.stringify(email.headers));
     if (options.cc?.length) {
       email.cc = options.cc?.map((ccItem) => ({ email: ccItem }));
     }

@@ -44,3 +44,4 @@ network:
 environments:
   prod:
     env_file: .env
+    PORT:

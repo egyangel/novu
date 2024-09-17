@@ -41,7 +41,7 @@ COPY --chown=1000:1000 nx.json .
 COPY --chown=1000:1000 pnpm-workspace.yaml .
 COPY --chown=1000:1000 pnpm-lock.yaml .
 
-RUN pnpm install
+RUN  pnpm install
 
 
 

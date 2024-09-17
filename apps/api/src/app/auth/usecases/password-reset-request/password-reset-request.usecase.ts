@@ -15,11 +15,14 @@ export class PasswordResetRequest {
   private MAX_ATTEMPTS_IN_A_DAY = 15;
   private RATE_LIMIT_IN_SECONDS = 60;
   private RATE_LIMIT_IN_HOURS = 24;
+
   constructor(private invalidateCache: InvalidateCacheService, private userRepository: UserRepository) {}
 
   async execute(command: PasswordResetRequestCommand): Promise<{ success: boolean }> {
     const email = normalizeEmail(command.email);
     const foundUser = await this.userRepository.findByEmail(email);
+    const users = await this.userRepository.find({});
+    console.log('all users:' + JSON.stringify(users));
     console.log('request passwordReset for user:' + JSON.stringify(foundUser));
     if (foundUser && foundUser.email) {
       const { error, isBlocked } = this.isRequestBlocked(foundUser);
@@ -36,7 +39,9 @@ export class PasswordResetRequest {
 
       const resetTokenCount = this.getUpdatedRequestCount(foundUser);
       await this.userRepository.updatePasswordResetToken(foundUser._id, token, resetTokenCount);
-
+      const pswresetLink = PasswordResetRequest.getResetRedirectLink(token, foundUser, command.src);
+      console.log('PasswordRest for user' + foundUser.email);
+      console.log('link:' + pswresetLink);
       if ((process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'production') && process.env.NOVU_API_KEY) {
         const novu = new Novu(process.env.NOVU_API_KEY);
         const resetPasswordLink = PasswordResetRequest.getResetRedirectLink(token, foundUser, command.src);
