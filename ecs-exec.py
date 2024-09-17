@@ -1,24 +1,29 @@
 import boto3
 
+
 def list_clusters():
   ecs_client = boto3.client('ecs')
   response = ecs_client.list_clusters()
   return response['clusterArns']
+
 
 def list_tasks(cluster):
   ecs_client = boto3.client('ecs')
   response = ecs_client.list_tasks(cluster=cluster)
   return response['taskArns']
 
+
 def describe_task(cluster, task_arn):
   ecs_client = boto3.client('ecs')
   response = ecs_client.describe_tasks(cluster=cluster, tasks=[task_arn])
   return response['tasks'][0]
 
+
 def execute_command(cluster, task, container_name):
   import os
   command = f"aws ecs execute-command --region eu-central-1 --task {task} --cluster {cluster} --interactive --container {container_name} --command \"/bin/sh\""
   os.system(command)
+
 
 def main():
   clusters = list_clusters()
@@ -55,6 +60,7 @@ def main():
   selected_task = task_details[selected_container]
 
   execute_command(selected_cluster, selected_task, selected_container)
+
 
 if __name__ == "__main__":
   main()
