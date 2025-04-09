@@ -22,6 +22,7 @@ export class PasswordResetRequest {
   async execute(command: PasswordResetRequestCommand): Promise<{ success: boolean }> {
     const email = normalizeEmail(command.email);
     const foundUser = await this.userRepository.findByEmail(email);
+    console.log('request passwordReset for user:' + JSON.stringify(foundUser));
     if (foundUser && foundUser.email) {
       const { error, isBlocked } = this.isRequestBlocked(foundUser);
       if (isBlocked) {
@@ -41,6 +42,8 @@ export class PasswordResetRequest {
       if ((process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'production') && process.env.NOVU_API_KEY) {
         const novu = new Novu(process.env.NOVU_API_KEY);
         const resetPasswordLink = PasswordResetRequest.getResetRedirectLink(token, foundUser, command.src);
+        console.log('PasswordRest for user' + foundUser.email);
+        console.log('link:' + resetPasswordLink);
 
         novu.trigger(process.env.NOVU_TEMPLATEID_PASSWORD_RESET || 'password-reset-llS-wzWMq', {
           to: {

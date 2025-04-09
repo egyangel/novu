@@ -108,6 +108,7 @@ export const getElasticacheCluster = (
     enableReadyCheck: true,
     redisOptions: {
       tls,
+
       ...(password && { password }),
       connectTimeout: 10000,
     },
@@ -115,7 +116,7 @@ export const getElasticacheCluster = (
     /*
      *  Disabled in Prod as affects performance
      */
-    showFriendlyErrorStack: process.env.NODE_ENV !== 'production',
+    showFriendlyErrorStack: true, //TODO: uncomment process.env.NODE_ENV !== 'production',
     slotsRefreshTimeout: 10000,
   };
 
